@@ -1,0 +1,25 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <title>Game</title>
+    <link rel="stylesheet" type="text/css" href="styles.css">
+</head>
+
+<body>
+    <div id="game">
+        <h2 id="player"></h2>
+        <p id="question"></p>
+        <div id="answers">
+            <button id="answer1" class="answer"></button>
+            <button id="answer2" class="answer"></button>
+            <button id="answer3" class="answer"></button>
+            <button id="answer4" class="answer"></button>
+        </div>
+        <button id="restart" style="display:none;">Replay</button>
+    </div>
+    <script src="/socket.io/socket.io.js"></script>
+    <script src="client.js"></script>
+</body>
+
+</html>

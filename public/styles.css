@@ -1,0 +1,38 @@
+body {
+    background-color: #242c3c;
+    color: #25a9f0;
+    text-align: center;
+}
+
+#player {
+    font-size: 2em;
+}
+
+#answers{
+    display: flex;
+    width: 100%;
+    justify-content: center;
+    align-items: center;
+}
+
+.answer {
+    display: block;
+    margin: 0.5em;
+    padding: 0.5em;
+    color: #242c3c;
+    border: transparent;
+    background-color: #25a9f0;
+}
+
+.answer:hover {
+    opacity: 75%;
+    cursor: pointer;
+}
+
+.correct {
+    background-color: #00cc83;
+}
+
+.incorrect {
+    background-color: #ef114c;
+}
