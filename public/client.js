@@ -31,7 +31,7 @@ socket.on('next', (data) => {
 socket.on('end', (data) => {
     questionElement.style.display = 'none';
     answerElements.forEach(answer => answer.style.display = 'none');
-    document.getElementById('player').innerText = 'You: ' + data.playerScores[playerID] + ', Opponent: ' + data.playerScores[opponentPlayerID];
+    document.getElementById('player').innerText = 'You: ' + data.scores[playerID] + ', Opponent: ' + data.scores[opponentPlayerID];
     document.getElementById('restart').style.display = 'block';
 });
 
