@@ -1,5 +1,7 @@
 const socket = io.connect();
 let playerID;
+let opponentPlayerID;
+if (playerID == 0) opponentPlayerID = 1; else opponentPlayerID = 0;
 const questionElement = document.getElementById('question');
 const answerElements = [
     document.getElementById('answer1'),
@@ -8,11 +10,6 @@ const answerElements = [
     document.getElementById('answer4'),
 ];
 
-socket.on('start', (data) => {
-    playerID = data.playerID;
-    document.getElementById('player').innerText = 'Player ' + playerID;
-    loadQuestion(data.question);
-});
 
 socket.on('mesta_su_popunjena', (data) => {
     // Brisanje svih elemenata iz tela (body) HTML dokumenta
@@ -22,6 +19,12 @@ socket.on('mesta_su_popunjena', (data) => {
     document.body.appendChild(tekst);
 });
 
+socket.on('start', (data) => {
+    playerID = data.playerID;
+    document.getElementById('player').innerText = 'Player ' + playerID;
+    loadQuestion(data.question);
+});
+
 socket.on('next', (data) => {
     loadQuestion(data.question);
 });
@@ -29,7 +32,7 @@ socket.on('next', (data) => {
 socket.on('end', (data) => {
     questionElement.style.display = 'none';
     answerElements.forEach(answer => answer.style.display = 'none');
-    document.getElementById('player').innerText = 'You: ' + data.score[0] + ', Opponent: ' + data.score[1];
+    document.getElementById('player').innerText = 'You: ' + data.playerScores[playerID] + ', Opponent: ' + data.playerScores[opponentPlayerID];
     document.getElementById('restart').style.display = 'block';
 });
 
@@ -47,10 +50,10 @@ function loadQuestion(question) {
     });
 }
 
-function submitAnswer(answer, questionID) {
+function submitAnswer(answer) {
     answerElements.forEach((answer) => {
         answer.disabled = true;
     });
 
-    socket.emit('answer', { playerID: playerID, answer: answer, questionID: questionID });
+    socket.emit('answer', { playerID: playerID, answer: answer });
 }
