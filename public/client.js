@@ -1,9 +1,12 @@
 const socket = io.connect();
 let playerID;
+let selectedAnswer;
 let opponentPlayerID;
-if (playerID == 0) opponentPlayerID = 1; else opponentPlayerID = 0;
+opponentPlayerID = playerID == 0 ? 1 : 0;
 
 const playerTitleElement = document.getElementById('player');
+const answersElement = document.getElementById('answers');
+const timerElement = document.getElementById('timer');
 const restartButtonElement = document.getElementById('restart');
 const questionTextElement = document.getElementById('question');
 const answerButtonElements = [
@@ -12,47 +15,75 @@ const answerButtonElements = [
     document.getElementById('answer3'),
     document.getElementById('answer4'),
 ];
+document.getElementById('restart').addEventListener('click', () => { socket.emit('restart'); });
 
-socket.on('mesta_su_popunjena', (data) => {
+socket.on('start', handleStart);
+socket.on('next', handleNext);
+socket.on('end', handleEnd);
+socket.on('checkAnswer', handleCheckAnswer);
+socket.on('mesta_su_popunjena', handleMestaSuPopunjena);
+socket.on('refreshTimer', handlerefreshTimer);
+
+function handleMestaSuPopunjena(data) {
     document.body.innerHTML = '';
     let tekst = document.createTextNode('Sva mesta su popunjna');
     document.body.appendChild(tekst);
-});
+}
 
-socket.on('start', (data) => {
+function handleStart(data) {
     playerID = data.playerID;
-    playerTitleElement.innerText = 'Player ' + (parseInt(playerID) + 1);
-
+    playerTitleElement.innerText = `Player ${playerID + 1}`;
+    questionTextElement.style.display = '';
+    answersElement.style.display = '';
+    restartButtonElement.style.display = 'none';
     questionTextElement.innerText = data.question.questionString;
     answerButtonElements.forEach((answerButtonElement, index) => {
         answerButtonElement.innerText = data.question.answers[index];
-        answerButtonElement.className = 'answer';
         answerButtonElement.disabled = false;
+        answerButtonElement.removeEventListener('click', () => submitAnswer(index));
         answerButtonElement.addEventListener('click', () => submitAnswer(index));
     });
-});
+}
 
-socket.on('next', (data) => {
+function handleNext(data) {
     questionTextElement.innerText = data.question.questionString;
     answerButtonElements.forEach((answerButtonElement, index) => {
         answerButtonElement.innerText = data.question.answers[index];
+        answerButtonElement.style.backgroundColor = '';
         answerButtonElement.disabled = false;
     });
-});
+}
 
-socket.on('end', (data) => {
+function handleEnd(data) {
+    playerTitleElement.innerText = `You: ${data.scores[playerID]}, Opponent: ${data.scores[opponentPlayerID]}`;
     questionTextElement.style.display = 'none';
-    answerButtonElements.forEach(answer => answer.style.display = 'none');
-    playerTitleElement.innerText = 'You: ' + data.scores[playerID] + ', Opponent: ' + data.scores[opponentPlayerID];
+    answersElement.style.display = 'none';
     restartButtonElement.style.display = 'block';
-});
+}
 
-document.getElementById('restart').addEventListener('click', () => { socket.emit('restart'); });
+function handleCheckAnswer(data) {
+    if (data.answerIsCorrect) {
+        selectedAnswer.style.backgroundColor = '#00cc84';
+    } else {
+        selectedAnswer.style.backgroundColor = '#ef114c';
+    }
+}
+
+function handlerefreshTimer(data) {
+    timerElement.innerText = data.elapsedSeconds;
+}
 
 function submitAnswer(answer) {
-    answerButtonElements.forEach((answer) => {
-        answer.disabled = true;
+    answerButtonElements.forEach((answerButtonElement) => {
+        answerButtonElement.disabled = true;
+        answerButtonElement.style.opacity = '';
     });
+    answerButtonElements[answer].style.opacity = '1';
+    selectedAnswer = answerButtonElements[answer];
+    socket.emit('answer', { playerID, answer });
+}
 
-    socket.emit('answer', { playerID: playerID, answer: answer });
+
+function clearElements() {
+
 }

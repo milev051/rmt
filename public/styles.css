@@ -1,42 +1,47 @@
 body {
+    padding-top: 1em;
     background-color: #242c3c;
     color: #25a9f0;
     text-align: center;
+    font-family: "Poppins";
 }
 
-#player {
+h1 {
     font-size: 2em;
 }
 
-#answers{
+h2 {
+    font-size: 1.5em;
+    opacity: 90%;
+}
+
+#player {}
+
+#question {}
+
+#answers {
     display: flex;
+    flex-wrap: wrap;
     width: 100%;
     justify-content: center;
     align-items: center;
 }
 
-.answer {
+button {
     display: block;
     margin: 0.5em;
     padding: 0.5em;
     color: #242c3c;
     border: transparent;
     background-color: #25a9f0;
+    font-size: 1.25em;
 }
 
-.answer:disabled {
-    opacity: 50%;
-}
-
-.answer:hover {
+button:hover {
     opacity: 75%;
     cursor: pointer;
 }
 
-.correct {
-    background-color: #00cc83;
-}
-
-.incorrect {
-    background-color: #ef114c;
+button:disabled {
+    opacity: 50%;
 }

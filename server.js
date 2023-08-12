@@ -2,7 +2,7 @@ const express = require('express');
 const http = require('http');
 const socketIo = require('socket.io');
 const opn = require('opn');
-
+const { Socket } = require('dgram');
 
 const app = express();
 app.use(express.static('public'));
@@ -41,21 +41,30 @@ const questions = [
     },
 ];
 
-io.on('connection', (socket) => {
-    AddNewPlayer(socket);
-    StartGame();
+io.on('connection', handleConnection);
+function handleConnection(socket) {
+    addNewPlayer(socket);
+    startGame();
+    socket.on('answer', handleAnswer);
+    socket.on('restart', handleRestart);
+    socket.on('disconnect', handleDisconnect);
+}
 
-    socket.on('answer', (data) => {
-        if (questions[currentQuestionID].correctAnswer == data.answer)
-            scores[data.playerID]++;
-        else
-            scores[data.playerID]--;
+function handleAnswer(data) {
+    if (questions[currentQuestionID].correctAnswer == data.answer) {
+        scores[data.playerID]++;
+        players[data.playerID].emit('checkAnswer', { answerIsCorrect: true });
+    }
+    else {
+        scores[data.playerID]--;
+        players[data.playerID].emit('checkAnswer', { answerIsCorrect: false });
+    }
 
-        responses++;
-        console.log(responses + "pre ")
-        if (responses == 2) {
+    responses++;
+    if (responses == 2) {
+        // proslediIgracimaTajmer(data, 2000);
+        setTimeout(() => {
             responses = 0;  // resetujemo brojač za sledeće pitanje
-            console.log(responses + " posle ")
             currentQuestionID++;
 
             if (currentQuestionID < questions.length) {
@@ -65,24 +74,26 @@ io.on('connection', (socket) => {
                 players[0].emit('end', { scores });
                 players[1].emit('end', { scores });
             }
-        }
-    });
+        }, 2000); // 2 seconds delay
+    }
+}
 
-    socket.on('restart', () => {
-        currentQuestionID = 0;
-        players[0].emit('start', { playerID: 0, question: questions[currentQuestionID] });
-        players[1].emit('start', { playerID: 1, question: questions[currentQuestionID] });
-    });
+function handleRestart() {
+    currentQuestionID = 0;
+    players[0].emit('start', { playerID: 0, question: questions[currentQuestionID] });
+    players[1].emit('start', { playerID: 1, question: questions[currentQuestionID] });
+}
 
+function handleDisconnect() {
     socket.on('disconnect', () => { server.close(); }); // Server se iskljucuje ako neki klijent izadje
-});
+}
 
-function AddNewPlayer(socket) {
+function addNewPlayer(socket) {
     players.push(socket);
     scores.push(0);
 }
 
-function StartGame() {
+function startGame() {
     if (players.length === 2) {
         scores = [0, 0];
         players[0].emit('start', { playerID: 0, question: questions[currentQuestionID] });
@@ -102,4 +113,15 @@ server.listen(3000, () => {
     opn('http://localhost:3000');
 });
 
+function proslediIgracimaTajmer(data, duration) {
+    let elapsedSeconds = duration / 1000;
+    let logInterval = setInterval(() => {
+        players[data.playerID].emit('refreshTimer', { elapsedSeconds: elapsedSeconds });
+        elapsedSeconds--;
+    }, 1000);
 
+    // Stop logging after the specified duration
+    setTimeout(() => {
+        clearInterval(logInterval);
+    }, duration);
+}
