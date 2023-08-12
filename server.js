@@ -3,6 +3,7 @@ const http = require('http');
 const socketIo = require('socket.io');
 const opn = require('opn');
 const { Socket } = require('dgram');
+const e = require('express');
 
 const app = express();
 app.use(express.static('public'));
@@ -62,7 +63,7 @@ function handleAnswer(data) {
 
     responses++;
     if (responses == 2) {
-        // proslediIgracimaTajmer(data, 2000);
+        proslediIgracimaTajmer(2000);
         setTimeout(() => {
             responses = 0;  // resetujemo brojač za sledeće pitanje
             currentQuestionID++;
@@ -71,8 +72,9 @@ function handleAnswer(data) {
                 players[0].emit('next', { playerID: 0, question: questions[currentQuestionID] });
                 players[1].emit('next', { playerID: 1, question: questions[currentQuestionID] });
             } else {
-                players[0].emit('end', { scores });
-                players[1].emit('end', { scores });
+                players[0].emit('end', { thisScore: scores[0], opponentScore: scores[1] });
+                players[1].emit('end', { thisScore: scores[1], opponentScore: scores[0] });
+                restartStats();
             }
         }, 2000); // 2 seconds delay
     }
@@ -113,15 +115,26 @@ server.listen(3000, () => {
     opn('http://localhost:3000');
 });
 
-function proslediIgracimaTajmer(data, duration) {
+function proslediIgracimaTajmer(duration) {
     let elapsedSeconds = duration / 1000;
+    players[0].emit('refreshTimer', { elapsedSeconds: elapsedSeconds });
+    players[1].emit('refreshTimer', { elapsedSeconds: elapsedSeconds });
     let logInterval = setInterval(() => {
-        players[data.playerID].emit('refreshTimer', { elapsedSeconds: elapsedSeconds });
         elapsedSeconds--;
+        players[0].emit('refreshTimer', { elapsedSeconds: elapsedSeconds });
+        players[1].emit('refreshTimer', { elapsedSeconds: elapsedSeconds });
     }, 1000);
 
     // Stop logging after the specified duration
     setTimeout(() => {
         clearInterval(logInterval);
+        players[0].emit('refreshTimer', { elapsedSeconds: '' });
+        players[1].emit('refreshTimer', { elapsedSeconds: '' });
     }, duration);
+}
+
+function restartStats() {
+    for (let index = 0; index < scores.length; index++) {
+        scores[index] = 0;
+    }
 }

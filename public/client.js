@@ -1,8 +1,6 @@
 const socket = io.connect();
 let playerID;
 let selectedAnswer;
-let opponentPlayerID;
-opponentPlayerID = playerID == 0 ? 1 : 0;
 
 const playerTitleElement = document.getElementById('player');
 const answersElement = document.getElementById('answers');
@@ -40,8 +38,12 @@ function handleStart(data) {
     answerButtonElements.forEach((answerButtonElement, index) => {
         answerButtonElement.innerText = data.question.answers[index];
         answerButtonElement.disabled = false;
-        answerButtonElement.removeEventListener('click', () => submitAnswer(index));
-        answerButtonElement.addEventListener('click', () => submitAnswer(index));
+        answerButtonElement.style.backgroundColor = '';
+        // Check if the event listener is already added using a custom attribute
+        if (!answerButtonElement.getAttribute('data-listener-added')) {
+            answerButtonElement.addEventListener('click', () => submitAnswer(index));
+            answerButtonElement.setAttribute('data-listener-added', 'true');
+        }
     });
 }
 
@@ -55,7 +57,7 @@ function handleNext(data) {
 }
 
 function handleEnd(data) {
-    playerTitleElement.innerText = `You: ${data.scores[playerID]}, Opponent: ${data.scores[opponentPlayerID]}`;
+    playerTitleElement.innerText = `You: ${data.thisScore}, Opponent: ${data.opponentScore}`;
     questionTextElement.style.display = 'none';
     answersElement.style.display = 'none';
     restartButtonElement.style.display = 'block';
