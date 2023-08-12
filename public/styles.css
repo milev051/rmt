@@ -24,6 +24,10 @@ body {
     background-color: #25a9f0;
 }
 
+.answer:disabled {
+    opacity: 50%;
+}
+
 .answer:hover {
     opacity: 75%;
     cursor: pointer;

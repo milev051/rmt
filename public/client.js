@@ -2,8 +2,11 @@ const socket = io.connect();
 let playerID;
 let opponentPlayerID;
 if (playerID == 0) opponentPlayerID = 1; else opponentPlayerID = 0;
-const questionElement = document.getElementById('question');
-const answerElements = [
+
+const playerTitleElement = document.getElementById('player');
+const restartButtonElement = document.getElementById('restart');
+const questionTextElement = document.getElementById('question');
+const answerButtonElements = [
     document.getElementById('answer1'),
     document.getElementById('answer2'),
     document.getElementById('answer3'),
@@ -11,46 +14,43 @@ const answerElements = [
 ];
 
 socket.on('mesta_su_popunjena', (data) => {
-    // Brisanje svih elemenata iz tela (body) HTML dokumenta
     document.body.innerHTML = '';
-    // Dodavanje teksta "Sva mesta su popunjna" u telo (body) dokumenta
     let tekst = document.createTextNode('Sva mesta su popunjna');
     document.body.appendChild(tekst);
 });
 
 socket.on('start', (data) => {
     playerID = data.playerID;
-    document.getElementById('player').innerText = 'Player ' + playerID;
-    loadQuestion(data.question);
+    playerTitleElement.innerText = 'Player ' + (parseInt(playerID) + 1);
+
+    questionTextElement.innerText = data.question.questionString;
+    answerButtonElements.forEach((answerButtonElement, index) => {
+        answerButtonElement.innerText = data.question.answers[index];
+        answerButtonElement.className = 'answer';
+        answerButtonElement.disabled = false;
+        answerButtonElement.addEventListener('click', () => submitAnswer(index));
+    });
 });
 
 socket.on('next', (data) => {
-    loadQuestion(data.question);
+    questionTextElement.innerText = data.question.questionString;
+    answerButtonElements.forEach((answerButtonElement, index) => {
+        answerButtonElement.innerText = data.question.answers[index];
+        answerButtonElement.disabled = false;
+    });
 });
 
 socket.on('end', (data) => {
-    questionElement.style.display = 'none';
-    answerElements.forEach(answer => answer.style.display = 'none');
-    document.getElementById('player').innerText = 'You: ' + data.scores[playerID] + ', Opponent: ' + data.scores[opponentPlayerID];
-    document.getElementById('restart').style.display = 'block';
+    questionTextElement.style.display = 'none';
+    answerButtonElements.forEach(answer => answer.style.display = 'none');
+    playerTitleElement.innerText = 'You: ' + data.scores[playerID] + ', Opponent: ' + data.scores[opponentPlayerID];
+    restartButtonElement.style.display = 'block';
 });
 
-//kad se klikne na restart dugme soket trazi od servera 'restart'
 document.getElementById('restart').addEventListener('click', () => { socket.emit('restart'); });
 
-function loadQuestion(question) {
-    questionElement.innerText = question.question;
-    question.answers.forEach((answer, index) => {
-        const button = answerElements[index];
-        button.innerText = answer;
-        button.className = 'answer';
-        button.disabled = false;
-        button.addEventListener('click', () => submitAnswer(index + 1, question.answers.length));
-    });
-}
-
 function submitAnswer(answer) {
-    answerElements.forEach((answer) => {
+    answerButtonElements.forEach((answer) => {
         answer.disabled = true;
     });
 
