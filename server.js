@@ -23,7 +23,7 @@ const questions = [
         answers: ['Berlin', 'Pariz', 'Madrid', 'Lisabon']
     },
     {
-        question: 'Koji vitamin se najviše nalazi u narandži AAAAA?',
+        question: 'Koji vitamin se najviše nalazi u narandži AAAAAbbbbbbb?',
         correctAnswer: 4,
         answers: ['Vitamin A', 'Vitamin D', 'Vitamin B', 'Vitamin C']
     },
