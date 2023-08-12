@@ -8,7 +8,7 @@ const server = http.createServer(app);
 const io = socketIo(server);
 
 let playerResponses = 0;
-let players = [];    
+let players = [];
 let playerScores = [];
 let questionsAsked = 0;
 const questions = [
@@ -50,7 +50,7 @@ io.on('connection', (socket) => {
             playerScores[data.playerID - 1]--;
 
         playerResponses++;
-        if (playerResponses === 2) {
+        if (playerResponses == 2) {
             playerResponses = 0;  // resetujemo brojač za sledeće pitanje
             questionsAsked++;
 

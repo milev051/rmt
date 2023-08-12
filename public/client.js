@@ -10,7 +10,6 @@ const answerElements = [
     document.getElementById('answer4'),
 ];
 
-
 socket.on('mesta_su_popunjena', (data) => {
     // Brisanje svih elemenata iz tela (body) HTML dokumenta
     document.body.innerHTML = '';
