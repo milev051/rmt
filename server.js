@@ -8,7 +8,7 @@ const server = http.createServer(app);
 const io = socketIo(server);
 
 let playerResponses = 0;
-let players = [];
+let players = [];    
 let playerScores = [];
 let questionsAsked = 0;
 const questions = [
