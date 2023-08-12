@@ -70,6 +70,8 @@ io.on('connection', (socket) => {
         players[0].emit('start', { playerID: 1, question: questions[0] });
         players[1].emit('start', { playerID: 2, question: questions[0] });
     });
+
+    socket.on('disconnect', () => { server.close(); }); // Server se iskljucuje ako neki klijent izadje
 });
 
 function AddNewPlayer(socket) {
