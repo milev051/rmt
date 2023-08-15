@@ -24,7 +24,7 @@ socket.on('refreshTimer', handlerefreshTimer);
 
 function handleMestaSuPopunjena(data) {
     document.body.innerHTML = '';
-    let tekst = document.createTextNode('Sva mesta su popunjna');
+    let tekst = document.createTextNode('Sva mesta su popunjena');
     document.body.appendChild(tekst);
 }
 
@@ -83,9 +83,4 @@ function submitAnswer(answer) {
     answerButtonElements[answer].style.opacity = '1';
     selectedAnswer = answerButtonElements[answer];
     socket.emit('answer', { playerID, answer });
-}
-
-
-function clearElements() {
-
 }

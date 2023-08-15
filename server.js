@@ -4,7 +4,6 @@ const socketIo = require('socket.io');
 const opn = require('opn');
 const { Socket } = require('dgram');
 const e = require('express');
-
 const app = express();
 app.use(express.static('public'));
 const server = http.createServer(app);
@@ -39,10 +38,11 @@ const questions = [
         questionString: 'Ko je poznat kao "Oče Nauke"?',
         correctAnswer: 0,
         answers: ['Galileo Galilei', 'Albert Einstein', 'Isaac Newton', 'Nikola Tesla']
-    },
+    }
 ];
 
 io.on('connection', handleConnection);
+
 function handleConnection(socket) {
     addNewPlayer(socket);
     startGame();
@@ -97,7 +97,6 @@ function addNewPlayer(socket) {
 
 function startGame() {
     if (players.length === 2) {
-        scores = [0, 0];
         players[0].emit('start', { playerID: 0, question: questions[currentQuestionID] });
         players[1].emit('start', { playerID: 1, question: questions[currentQuestionID] });
     }
