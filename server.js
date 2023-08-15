@@ -109,12 +109,6 @@ function startGame() {
     }
 }
 
-server.listen(3000, () => {
-    console.log('Server is listening on port 3000');
-    opn('http://localhost:3000');
-    opn('http://localhost:3000');
-});
-
 function proslediIgracimaTajmer(duration) {
     let elapsedSeconds = duration / 1000;
     players[0].emit('refreshTimer', { elapsedSeconds: elapsedSeconds });
@@ -138,3 +132,9 @@ function restartStats() {
         scores[index] = 0;
     }
 }
+
+server.listen(3000, () => {
+    console.log('Server is listening on port 3000');
+    opn('http://localhost:3000');
+    opn('http://localhost:3000');
+});
